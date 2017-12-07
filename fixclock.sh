@@ -1,7 +1,7 @@
 #!/bin/bash
 ########################################################################
 #
-# Written by Mike Kelly
+# Originally Written by Mike Kelly
 # twitter.com/lixmk
 # git.io/lixmk
 # exfil.co
