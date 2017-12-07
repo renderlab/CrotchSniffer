@@ -1,62 +1,76 @@
-# Wiegotcha: Long Range RFID Thieving  
-Wiegotcha is the next evolution of Long Range RFID badge capturing. Based on previous work by Fran Brown and Bishop Fox (Tastic RFID Thief), Wiegotcha uses a Raspberry Pi in place of an Arduino for the added capabilities and ease of customization. One of the immediate benefits of using an RPi is quick and easy wireless communication with the badge reader.  
-  
-Before going any further, I want to make sure to acknowledge those who helped this project, without knowing they did so.  
+# CrotchSniffer: Long Range RFID Thieving  
+
+CrotchSniffer is the RenderLab's variation on the Wiegotcha long range RFID sniffer.  Built to be added to the RenderLab's bag of tricks 
+when doing pen tests or educational demonstrations.
+
+It's a fork of the Wiegotcha, by Mike Kelly at exfil.co, was based on previous work by Fran Brown and Bishop Fox (Tastic RFID Thief).  
+
+Before going any further, I want to make sure to acknowledge those who helped this project, without knowing they did so in order to spread the blame
 1. Fran Brown and BishopFox for the original Tastic RFID Thief (https://www.bishopfox.com/resources/tools/rfid-hacking/attack-tools/). Much of the original Arduino code was ported over into wiegotcha.c.  
 2. pidoorman RPi wiegand reader code (http://pidoorman.co.uk/).  
 3. Kyle Mallory for his fork of the above pidoorman code (found at https://gist.github.com/hsiboy/9598741).  
 4. Derek Eder for his csv to html code (https://github.com/derekeder/csv-to-html-table).  
 5. Gordon Henterson for the wiringPi library (https://projects.drogon.net/raspberry-pi/wiringpi/).  
-  
+6. Mike Kelly for the Wiegotcha code that did most of the heavy lifting (https://github.com/lixmk/Wiegotcha/)
+
 ## Information  
-Wiegotcha is a simple to build, simple to install, and simple to use tool for capturing RFID badge information from unsuspecting targets. Similar to it's predicessor, the Tastic RFID Thief, the Wiegotcha is designed to be placed inside an HID Maxiprox 5375 (125kHz ProxII cards), Indala ASR-620 (Indala), or an HID R90 (13.56mHz iClass cards). Wiegotcha improves upon previous publicly released long range RFID readers by incorporating wifi out of the box as well as hardware clock for accurate timestamps. Moving from Arduino to Raspberry Pi also means the Wiegotcha is easily customized and improved.  
+
+The CrotchSniffer is a variation on the Wiegotcha. It's simple to build, simple to install, and simple to use tool for capturing RFID 
+badge information from unsuspecting targets as well as for use in static demonstations (trade shows, seminars, etc). 
+
+The CrotchSniffer is a Raspberry Pi based system designed to be placed inside an HID Maxiprox 5375 (125kHz ProxII cards), Indala ASR-620 
+(Indala), or an HID R90 (13.56mHz iClass cards). 
+
+ - Improvements and changes include some updates to the install scripting to remove some of the manual steps
+ - Unifying the power source to use a single 12v source instead of more specialized 12v/5v batteries
+ - Breaking out the power to allow for battery power or AC adapter
+ - Breaking out the HDMI port to an exterior port (for Diagnostic and Display)
+ - Breaking out the USB ports (For diagnostics and camera input)
+ - Web Camera activation on card read (for 'Gotcha' demonstrations)
   
-Wiegotcha is intended to be built with a Raspberry Pi 3, but the code has been tested on an B+ and 2 (with external Wi-Fi). Testing has not been done on a RPi zero, but it should work. Check out the associated blog post at: http://exfil.co/2017/01/17/wiegotcha-rfid-thief/.  
-  
-Default Passwords:  
-* root:Wiegotcha  
-* pi:Wiegotcha  
-  
-IP Addressing:  
+The CrotchSniffer is intended to be built with a Raspberry Pi 3 and works best on that, but the code has been tested on an B+ and 2 (with 
+external Wi-Fi). Testing has not been done on a RPi zero, but it should work, however the experience may suck.
+
+## Name
+
+The project is named rather appropriatly once you think about it.
+
+The device is designed to sniff RFID access cards, which typically double as corporate ID cards.  Very often, these are on a retractable 
+lanyard clipped to a belt or waistband.  This means they dangle at about crotch level, which is much easier to read serupticiously than 
+one work on a neck lanyard higher up on the body.
+
+At Defcon 17 in 2009, a similar setup was deployed under a table, behind a table skirt (crotch level) and would snap a picture of the 
+presumed owner [Wired Article](https://www.wired.com/2009/08/fed-rfid/).  At a public education event in 2016 I helped orginizr, a 
+similar and less serupticious version was deployed quite effectivly.  Thus, when a MaxiProx reader came into my posession, it was logical 
+to build a version for offensive, as well as educational and demonstration purposes.
+
+It is literally built to Sniff cards hanging at Crotch level = CrotchSniffer!
+
+## Script Defaults
+
+IP Addresing:  
 * eth0 = DHCP  
-* wlan0 = 192.168.150.1  
+* wlan0 = 192.168.69.1  
   
 Access Point:  
-* ESSID: Wiegotcha  
-* Pass: Wiegotcha  
-* (See a pattern yet?)  
-  
-**Do not forget to change default passwords!**  
-  
-Future Plans (I should say hopes):  
-* GPS Integration?  
-* Proxmark3 Integration (auto- or semi-auto cloning via web app)  
-* Push notifications?  
-* Camera?    
+* ESSID: CrotchSniffer  
+* Open AP
   
 ## Code Installation
-### Easy Mode  
-Easy mode installation is basically the same as installing Raspbian.  
-1. Download the image from https://drive.google.com/file/d/0B1KiYGoUoNwGem8tZlRxeEVwRHM/  
-2. Check .gz md5 sum: 7f8b0507e0b58cbc301b39550c59e33d.  
-3. Decompress the image.  
-4. Check .img md5 sum: b68d21f1c0e6b200985a29869491fbf0.  
-5. Use dd or whatever windows uses to push the image to your sd card.  
-6. Ensure ethernet cable is connected and boot.  
-7. Run `/root/Wiegotcha/fixclock.sh` to set correct time to hardware clock.  
-8. Proceed to Hardware Installation.  
-  
-### Manual (longer) Mode
-"Manual" installation is still fairly straight forward. Feel free to explore install.sh and laststep.sh to fully understand what they do.  
-1. Burn a fresh raspbian SD card. You can use Jessie or Jessie-lite.  
-2. Run `sudo su -` to become root  
-3. Run `apt-get update && apt-get -y install git #Skip this step if you're using full Jessie`  
-4. In /root run `git clone https://github.com/lixmk/Wiegotcha`  
-5. Run `cd Wiegotcha && ./install.sh`  
-6. The install script will walk you through everything, including a reboot.  
-7. After first reboot run `screen -dr install` (as root)  
+
+These scripts are meant to be installed on a freshly installed Raspian image and meant to make the heacy lifting of setup easier.  They 
+can be tweaked as necessary.  Feel free to explore install.sh and laststep.sh. They are well commented and should allow you to fully 
+understand what they do.  
+
+1. Write a fresh raspbian SD card. You can use Stretch or Stretch lite  
+2. Boot up, login and run `sudo su -` to become root
+3. Run `apt-get update && apt-get -y install git #Skip this step if you're using full stretch` 
+4. In /root run `git clone https://github.com/renderlab/CrotchSniffer.git` 
+5. Run `cd CrotchSniffer && ./install.sh` 
+6. The install script will walk you through everything, including a reboot (to enable the i2c interface)
+7. After first reboot run `screen -dr install` (as root) 
 8. Follow instructions to complete final steps of installation.  
-9. Proceed to Hardware Installation.  
+9. Proceed to Hardware Installation.
   
 ## Hardware Installation
 Thorough instructions: http://exfil.co/2017/01/17/wiegotcha-rfid-thief/
@@ -77,12 +91,14 @@ Short version:
 13. OPTIONAL: Solder haptic motor.  
 
 ## BOM
-* Raspberry Pi 3: https://www.amazon.com/dp/B01CD5VC92/  
+* Raspberry Pi 3: [LINK](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)  
 * RFID Reader (Maxiprox 5375, Indala ASR-620, iClass R90): https://www.amazon.com/dp/B002I15F90/ (Maxiprox 5375. Check eBay for better prices)  
 * Level Shifter: https://www.amazon.com/dp/B00RT03GSC/, https://www.sparkfun.com/products/12009 (Many option exist, some may come presoldered for the extra lazy)  
 * DS3231 Real-time Clock: https://www.amazon.com/dp/B00HF4NUSS/  
+* LM2596 DC to DC step down transformer (https://www.amazon.ca/eBoot-LM2596-Converter-3-0-40V-1-5-35V/dp/B01GJ0SC2C/)
 * Micro SD Card (8GB or larger): https://www.amazon.com/dp/B017NT8PNE/ (Just an example)  
-* 12v Battery with 5v USB: https://www.amazon.com/dp/B00ME3ZH7C/  
+* 12v Battery pack: https://www.amazon.com/dp/B00ME3ZH7C/  
+* 12v AC adapter (3 Amps minimum): https://www.amazon.ca/OMNIHIL-Power-Adapter-Regulated-Supply/dp/B06XV1SGSH/
 * Jumper wires (I use 5 Female to Female and 3 Male to Female): https://www.amazon.com/dp/B01EV70C78/  
 * Short USB Mirco Cable: https://www.amazon.com/dp/B00VXH697W/  
-* Haptic Motor (Optional) : https://www.adafruit.com/products/1201  
+* Haptic Motor (Optional) : https://www.adafruit.com/products/1201
